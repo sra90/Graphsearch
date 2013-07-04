@@ -1,0 +1,185 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+		<title> Graph Search</title>
+	</head>
+	<body>
+		<header align="center">
+			<h2>About</h2>
+			<p>This is a basic Graph Search tool. Using this we can find all possible connections between two people in the graph. The graph is preloaded with some people and 
+			the connections between them.
+			</p>
+		</header><hr/>
+		<div align="center">
+		<input type="search" name="srch" id="srch"/>
+		<input type="search" name="srch2" id="srch2"/>
+		<input type="button" value="Search Path" onclick="findit()"/> <br/><br/>
+		<input type="search" name="person" id="person"/>
+		<input type="button" value="Add Person" onclick="addPerson()"/><br/><br/>
+		<input type="search" name="conn1" id="conn1"/>
+		<input type="search" name="conn2" id="conn2"/>
+		<input type="button" value="Add Connection" onclick="addConn()"/><br/>
+		<input type="button" value="View All Connections" onclick="viewConn()"/>
+		<input type="button" value="View All Nodes" onclick="viewNodes()"/><br/><br/>
+		</div><hr/>
+		<div id="result" align="center">
+		</div>
+		<footer><span id="hit"  style="color:grey;position:absolute;bottom:0;left:0"></span><span style="color:grey;position:absolute;bottom:0;right:0">Satya Rohit A</span></footer>
+		<script type="text/javascript">
+		
+		d = document.getElementById("result");
+		
+		function findit()
+		{
+			e = document.getElementById("srch");
+			e2 = document.getElementById("srch2");
+		    
+			if((e.value)&&(e2.value))
+		    {
+				xhr = new XMLHttpRequest();
+				xhr.onreadystatechange = disp;
+				xhr.open("GET", "http://localhost/graphsearch.php?srch="+e.value+"&srch2="+e2.value,true);
+				xhr.send(null);
+			}
+		}
+	
+		function disp()
+		{
+			if(xhr.readyState == 4 && xhr.status == 200)
+			{
+				str = xhr.responseText;		
+				d.innerHTML = "<h1>Paths</h1>";
+				paths = str.split(";");
+				if(paths.length>1)
+				{					
+					e2 = document.getElementById("srch2");
+					for(var i = 0; i < paths.length; i++) 
+					{
+						names = paths[i].split(",");					
+						
+						for(var j = 1; j < names.length; j++) 
+						{
+							d.innerHTML = d.innerHTML + "<span style='color:yellowgreen;font-size:35px;border-style:groove;border-width:5px;border-radius:5px'><b>"+names[j]+"</b></span>" + "->";
+						}
+						if(i!=(paths.length-1))
+							d.innerHTML = d.innerHTML + "<span style='color:yellowgreen;font-size:35px;border-style:groove;border-width:5px;border-radius:5px'><b>"+e2.value+"</b></span>";
+						
+						d.innerHTML = d.innerHTML + "<br/><br/><br/>";
+					}							
+				}
+				else
+				{	
+					d.innerHTML = str;			
+				}
+
+			}
+		}
+	
+		function addPerson()
+		{
+			e = document.getElementById("person");
+			if(e.value)
+			{
+				xhr = new XMLHttpRequest();
+				xhr.onreadystatechange = added;
+				xhr.open("GET", "http://localhost/graphsearch.php?person="+e.value,true);
+				xhr.send(null);
+			}
+		}
+		
+		function added()
+		{
+		
+			if(xhr.readyState == 4 && xhr.status == 200)
+			{
+				str = xhr.responseText;						
+				d.innerHTML = str;				
+			}
+		}
+		
+		function addConn()
+		{
+			e = document.getElementById("conn1");
+			e2 = document.getElementById("conn2");
+			if((e.value)&&(e2.value))
+			{
+				xhr = new XMLHttpRequest();
+				xhr.onreadystatechange = connected;	
+				xhr.open("GET", "http://localhost/graphsearch.php?conn1="+e.value+"&conn2="+e2.value,true);
+				xhr.send(null);
+			}
+		}
+		
+		
+		function connected()
+		{
+			if(xhr.readyState == 4 && xhr.status == 200)
+			{
+				str = xhr.responseText;	
+				d.innerHTML = str;				
+			}
+		}
+		
+		
+		function viewConn()
+		{
+			xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = allConns;
+			xhr.open("GET", "http://localhost/graphsearch.php?conns=true",true);
+			xhr.send(null);			
+		}
+		
+		function allConns()
+		{		
+			if(xhr.readyState == 4 && xhr.status == 200)
+			{
+				str = xhr.responseText;		
+				alert(str);
+				allconns = str.split(";");
+				for(var k =0;k<(allconns.length)-1;k++)
+				{
+					conn = allconns[k].split(",");					
+					d.innerHTML += conn[0] + " &lt;----&gt; "+ conn[1] +"<br/>";				
+				}
+				
+			}
+		}
+		
+		function viewNodes()
+		{
+			xhr = new XMLHttpRequest();
+			xhr.onreadystatechange = allNodes;
+			xhr.open("GET", "http://localhost/graphsearch.php?nodes=true",true);
+			xhr.send(null);			
+		}
+		
+		function allNodes()
+		{		
+			if(xhr.readyState == 4 && xhr.status == 200)
+			{
+				str = xhr.responseText;						
+				allmynodes = str.split(",");
+				for(var k =0;k<(allmynodes.length)-1;k++)
+				{
+					d.innerHTML += allmynodes[k] + "<br/>";				
+				}
+			}
+		}
+		
+		pagehits = new XMLHttpRequest();
+		pagehits.onreadystatechange = hits;
+		pagehits.open("GET", "http://localhost/graphsearch.php",true);
+		pagehits.send(null);
+		
+		function hits()
+		{
+			if(pagehits.readyState == 4 && pagehits.status == 200)
+			{
+				str = pagehits.responseText;	
+				h = document.getElementById("hit");				
+				h.innerHTML = str;				
+			}
+		}
+		</script>
+	</body>	
+</html>
